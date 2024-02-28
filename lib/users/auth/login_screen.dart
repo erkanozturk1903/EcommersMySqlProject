@@ -2,6 +2,9 @@ import 'dart:convert';
 
 import 'package:ecommerce_project_mysql/api_connection/api_connection.dart';
 import 'package:ecommerce_project_mysql/users/auth/signup_screen.dart';
+import 'package:ecommerce_project_mysql/users/fragments/dashboard_of_fragments.dart';
+import 'package:ecommerce_project_mysql/users/model/user.dart';
+import 'package:ecommerce_project_mysql/users/userPreferences/user_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
@@ -23,24 +26,36 @@ class _LoginScreenState extends State<LoginScreen> {
 
   loginUserNow() async {
 
-    var res = await http.post(
-      Uri.parse(API.login),
-      body: {
-        "user_email" : emailController.text.trim(),
-        "user_password" : passwordController.text.trim(),
-      },
+   try {
+     var res = await http.post(
+       Uri.parse(API.login),
+       body: {
+         "user_email" : emailController.text.trim(),
+         "user_password" : passwordController.text.trim(),
+       },
 
-    );
-    if (res.statusCode == 200) {
-      var resBodyOfLogin = jsonDecode(res.body);
-      if (resBodyOfLogin['success'] == true) {
-        Fluttertoast.showToast(msg: "Login Succesfully");
+     );
+     if (res.statusCode == 200) {
+       var resBodyOfLogin = jsonDecode(res.body);
+       if (resBodyOfLogin['success'] == true) {
+         Fluttertoast.showToast(msg: "Login Succesfully");
 
-        resBodyOfLogin["userData"];
-      } else {
-        Fluttertoast.showToast(msg: "Incorrect Credentials! Please write email and password. Try Again");
-      }
-    }
+         User userInfo = User.fromJson(resBodyOfLogin["userData"]);
+
+         //TODO: Save userInfo local Storage SharedPreferences
+         await RememberUserPrefs.storeUserInfo(userInfo);
+
+         Future.delayed(const Duration(milliseconds: 2000),() {
+           Get.to( DashboardOfFragments());
+         });
+
+       } else {
+         Fluttertoast.showToast(msg: "Incorrect Credentials! Please write email and password. Try Again");
+       }
+     }
+   }catch(e) {
+    print(e.toString());
+   }
   }
 
   @override
@@ -197,7 +212,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                   borderRadius: BorderRadius.circular(30),
                                   child: InkWell(
                                     onTap: () {
-                                      loginUserNow();
+                                     if(formKey.currentState!.validate()){
+                                          loginUserNow();
+                                     }
                                     },
                                     borderRadius: BorderRadius.circular(30),
                                     child: const Padding(
