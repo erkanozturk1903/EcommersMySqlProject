@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:ecommerce_project_mysql/admin/admin_login.dart';
 import 'package:ecommerce_project_mysql/api_connection/api_connection.dart';
 import 'package:ecommerce_project_mysql/users/auth/signup_screen.dart';
 import 'package:ecommerce_project_mysql/users/fragments/dashboard_of_fragments.dart';
@@ -271,7 +272,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             children: [
                               const Text("Are you Admin?"),
                               TextButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  Get.to(const AdminLoginScreen());
+                                },
                                 child: const Text(
                                   "Admin Login",
                                   style: TextStyle(
